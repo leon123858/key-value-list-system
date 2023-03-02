@@ -1,11 +1,11 @@
-import { Collection, MongoClient } from 'mongodb';
-const url = 'mongodb://localhost:27017';
+import { Collection, Db, MongoClient } from 'mongodb';
+const url = 'mongodb://127.0.0.1:27017';
 const client = new MongoClient(url);
 
 declare global {
 	var DBO: {
+		db: Db;
 		pages: Collection;
-		heads: Collection;
 	};
 }
 
@@ -14,8 +14,8 @@ export async function init() {
 	console.log('connect mongoDB success');
 	const db = client.db('key-value-list');
 	global.DBO = {
-		pages: db.collection('pages') as Collection,
-		heads: db.collection('heads') as Collection,
+		db: db,
+		pages: db.collection('pages'),
 	};
 }
 

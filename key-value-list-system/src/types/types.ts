@@ -1,25 +1,16 @@
-import { ObjectId as PageId, ObjectId } from 'mongodb';
+import { ObjectId as PageId, ObjectId, Timestamp } from 'mongodb';
 
 /**
  * link list node
  * @property articles
  * @property nextPage
  * @property prePage
+ * @property headKey
  */
 export interface Page {
-	_id: ObjectId;
+	_id?: ObjectId;
 	articles: string[];
-	nextPage: PageId;
-	prePage: PageId;
-}
-
-/**
- * record first page of list
- * @property listKey
- * @property firstPage
- */
-export interface Head {
-	_id: ObjectId;
-	listKey: string;
-	firstPage: PageId;
+	headKey: string | null;
+	nextPage: PageId | null;
+	prePage: PageId | null;
 }
