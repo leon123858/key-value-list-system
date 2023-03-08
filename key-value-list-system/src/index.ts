@@ -3,14 +3,18 @@
  */
 import express from 'express';
 import cors from 'cors';
+import bodyParser from 'body-parser';
 import { apiRoute } from './routers';
 import { init as initDb } from './libs/initDb';
+import YAML from 'yamljs';
+import swaggerUi from 'swagger-ui-express';
 
 /**
  * Init Core Object
  */
 
 const app: express.Application = express();
+const swaggerDocument = YAML.load('./docs/openapi.yaml');
 
 /**
  * Set global variable
@@ -23,14 +27,8 @@ const port: number = 3000;
  */
 
 app.use(cors());
-
-/**
- * Basic router
- */
-
-app.get('/', async (_req, res) => {
-	res.send('You can get API document for this system in ./docs/openapi.yaml');
-});
+app.use(bodyParser.json());
+app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 /**
  * Main API

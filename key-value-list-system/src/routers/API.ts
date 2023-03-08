@@ -29,5 +29,9 @@ router.put('/update/page', async (req, res) => {
 router.put('/move/page', async (req, res) => {
 	res.status(200).json({ status: 'OK' });
 });
+// delete head
+router.delete('/delete/head', async (req, res) => {
+	res.status(200).json({ status: 'OK' });
+});
 
 export default router;

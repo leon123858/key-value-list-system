@@ -8,7 +8,11 @@ import {
 } from '../src/libs/dbWrapper';
 import { ObjectId } from 'mongodb';
 import { Page } from '../src/types/types';
-import { linkPage, updatePageArticles } from '../src/libs/dbWrapper';
+import {
+	linkPage,
+	updatePageArticles,
+	deleteHead,
+} from '../src/libs/dbWrapper';
 
 describe('dbWrapper', function () {
 	before(async () => {
@@ -132,6 +136,34 @@ describe('dbWrapper', function () {
 			await linkPage(id, id2, 'test-link2');
 			expect(origin).eqls(await getPage(id));
 			expect(origin2).eqls(await getPage(id2));
+		});
+	});
+	describe('delete in dbWrapper', function () {
+		it('Should be error when get wrong input', async () => {
+			try {
+				await deleteHead({} as any);
+				throw 'Should not error by is line';
+			} catch (err) {
+				expect(err).eql('Should input headKey as parameter');
+			}
+		});
+		it('Should delete link list success', async () => {
+			const headId = await createHead(['delete'], 'test-delete');
+			const pages = await Promise.all(
+				[...new Array(10)].map((v) => createPage([v]))
+			);
+			let prePageId = headId;
+			for (let page of pages) {
+				await linkPage(prePageId, page, 'test-delete');
+				prePageId = page;
+			}
+			for (let page of pages) {
+				expect(await getPage(page)).is.not.null;
+			}
+			await deleteHead('test-delete');
+			for (let page of pages) {
+				expect(await getPage(page)).is.null;
+			}
 		});
 	});
 });

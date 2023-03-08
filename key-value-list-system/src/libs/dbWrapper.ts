@@ -164,3 +164,16 @@ export const linkPage = async (
 		);
 	}
 };
+
+/**
+ * 刪除所有以 headKey 為 head 的 link list page
+ * @param headKey link list head 鍵值
+ */
+export const deleteHead = async (headKey: string) => {
+	if (typeof headKey != 'string') {
+		throw 'Should input headKey as parameter';
+	}
+	await DBO.pages.deleteMany({
+		headKey,
+	});
+};
