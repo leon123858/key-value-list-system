@@ -20,7 +20,8 @@ const swaggerDocument = YAML.load('./docs/openapi.yaml');
  * Set global variable
  */
 
-const port: number = 3000;
+const portOfExpress: number = 3000;
+const portOfMongo: number = 27017;
 
 /**
  * use middleware in first
@@ -28,13 +29,14 @@ const port: number = 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 /**
  * Main API
  */
 
 app.use('/api', apiRoute);
+
+app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 /**
  * error handle
@@ -47,7 +49,7 @@ app.get('*', function (_req, res) {
 /**
  * Server Setup
  */
-app.listen(port, async () => {
-	await initDb();
-	console.log(`listening on => http://localhost:${port}/`);
+app.listen(portOfExpress, async () => {
+	await initDb(portOfMongo);
+	console.log(`express listening on => http://localhost:${portOfExpress}/`);
 });

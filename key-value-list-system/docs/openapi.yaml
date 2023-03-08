@@ -1,138 +1,196 @@
 openapi: 3.0.3
 info:
-  title: AID 0.1.0
+  title: key-value-list system
   description: |-
-    This is a auth service base on ourChain protocol
+    這是 Dcard 後端實習生的面試作業
   contact:
     email: a0970785699@gmail.com
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 1.0.11
+  version: 0.1.0
 externalDocs:
   description: Find out more about AID
-  url: https://github.com/leon123858/AID
+  url: https://github.com/leon123858/key-value-list-system
 servers:
   - url: http://127.0.0.1:3000
 tags:
-  - name: private
-    description: 用戶可以在自行運轉的節點調用, 需個人金鑰
-  - name: api
-    description: 用戶透過此類 API 使用 AID 服務
+  - name: get
+    description: 獲取分頁的方法
+  - name: set
+    description: 設置與排列分頁的方法
+  - name: delete
+    description: 定期刪除過期分頁的方法
 paths:
-  /:
+  /api/get/head:
     get:
       tags:
-        - private
-      summary: create a AID smart contract in blockchain
-      description: be used when user want to create a contract of AID
-      operationId: privatecreate
+        - get
+      summary: 依照列表鍵值獲取首頁 id
+      description: 放入在創建列表時定義的關鍵字, 可以得到該關鍵字所代表列表的第一頁編號(可視為 cursor)
+      operationId: apigethead
+      parameters:
+        - in: query
+          name: key
+          schema:
+            type: string
+          example: 'meme'
+          description: create head 時選定的列表關鍵字
       responses:
         '200':
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
-      security:
-        - api_key: ['holdNode']
-  /private/create:
-    post:
+                type: object
+                properties:
+                  nextPageKey:
+                    type: string
+                    description: 目標頁 id (cursor)
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: key not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/get/page:
+    get:
       tags:
-        - private
-      summary: create a AID smart contract in blockchain
-      description: be used when user want to create a contract of AID
-      operationId: privatecreate
+        - get
+      summary: 依照分頁 id (cursor) 獲取分頁資訊和下一頁的 id
+      description: 如果下一頁 id 未定義表示列表結束
+      operationId: apigetpage
+      parameters:
+        - in: query
+          name: pageId
+          schema:
+            type: string
+          description: pageId 為自動生成的唯一編號(亂碼)
       responses:
         '200':
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
-      security:
-        - api_key: ['holdNode']
-  /api/register:
+                type: object
+                properties:
+                  nextPageKey:
+                    type: string
+                    nullable: true
+                    description: 目標頁 id (cursor), 沒下一頁則為未定義
+                  articles:
+                    type: array
+                    items:
+                      type: string
+                      description: 一篇文章的內容
+                      example: 我是一個 post
+                required:
+                  - articles
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: key not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/create/head:
     post:
       tags:
-        - api
-      summary: link a AID contract to a AID service provider
-      description: should have a AID service provider have API to let other 3rd party company use
-      operationId: apiregister
+        - set
+      summary: 創建列表的第一頁
+      description: 需同時定義列表鍵值, 用來搜索列表, 若鍵值已存在不報錯, 所有獲取鍵值操作將在新舊列表擇一
+      operationId: apicreatehead
       requestBody:
-        description: payload for define a user in AID contract
+        description: 包含鍵值和發文內容陣列
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
-        required: true
+              type: object
+              properties:
+                listKey:
+                  type: string
+                  description: 搜索列表用的鍵值
+                articles:
+                  type: array
+                  items:
+                    type: string
+                    description: 一篇文章的內容
+                    example: 我是一個 post
       responses:
         '200':
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
-  /api/request:
+                type: object
+                properties:
+                  pageKey:
+                    type: string
+                    description: 創建出來的列表第一頁的 id (cursor for first page)
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/create/page:
     post:
       tags:
-        - api
-      summary: get user message by AID service
-      description: be used when 3rd party service want to let a user login
-      operationId: apirequest
+        - set
+      summary: 創建列表的某一頁, 但不與特定列表連結
+      description: 需定義該頁要存儲的文章陣列內容作為輸入, 調用者應自行紀錄回傳的分頁 id, 再用 move page 移到想插入的某列表特定分頁後面
+      operationId: apicreatepage
+      requestBody:
+        description: 包含發文內容陣列
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                articles:
+                  type: array
+                  items:
+                    type: string
+                    description: 一篇文章的內容
+                    example: 我是一個 post
       responses:
         '200':
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
-  /api/fetch:
-    post:
-      tags:
-        - api
-      summary: get contract info by 3rd party hold node
-      description: 3rd party service should check AID service's message
-      operationId: apifetch
-      responses:
-        '200':
-          description: Successful operation
+                type: object
+                properties:
+                  pageKey:
+                    type: string
+                    description: 創建出來的分頁 id (cursor for the page)
+        '400':
+          description: bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
-      security:
-        - api_key: ['holdNode']
+                $ref: '#/components/schemas/ApiErrorResponse'
 components:
   schemas:
-    User:
-      type: object
-      properties:
-        uid:
-          type: string
-          format: int64
-          example: iamrandomuniqueid
-        name:
-          type: string
-          example: theUser
-        publicKey:
-          type: string
-          description: public key
-          example: iampublickey
     ApiResponse:
       type: object
       properties:
-        code:
-          type: integer
-          format: int32
-        type:
+        status:
           type: string
-        message:
+    ApiErrorResponse:
+      type: object
+      properties:
+        error:
           type: string
-      xml:
-        name: '##default'
-  securitySchemes:
-    api_key:
-      type: apiKey
-      name: api_key
-      in: header
+          description: 錯誤原因

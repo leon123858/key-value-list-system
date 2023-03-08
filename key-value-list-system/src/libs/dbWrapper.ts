@@ -39,6 +39,7 @@ export const getPage = async (pageId: ObjectId | string) => {
  * @param articles
  * @param headKey
  * @returns 創建成功的 page 編號
+ * @description 若重複創建 headKey, 不報錯, 預設所有操作取用第一個 headKey
  */
 export const createHead = async (articles: string[], headKey: string) => {
 	if (typeof headKey !== 'string' || Array.isArray(articles) === false) {
@@ -100,7 +101,7 @@ export const updatePageArticles = async (
  * @param fromPage
  * @param toPage
  * @param pageKey fromPage 所在列表的首位 key
- * @warning 基於效能, 不處理環狀 link-list
+ * @description 基於效能, 不處理環狀 link-list
  */
 export const linkPage = async (
 	fromPage: ObjectId | string,

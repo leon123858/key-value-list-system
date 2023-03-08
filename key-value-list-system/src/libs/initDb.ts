@@ -1,6 +1,6 @@
 import { Collection, Db, MongoClient } from 'mongodb';
-const url = 'mongodb://127.0.0.1:27017';
-const client = new MongoClient(url);
+const url = (port = 27017) => `mongodb://127.0.0.1:${port}`;
+let client: MongoClient;
 
 declare global {
 	var DBO: {
@@ -9,7 +9,8 @@ declare global {
 	};
 }
 
-export async function init() {
+export async function init(port?: number) {
+	client = new MongoClient(url(port));
 	await client.connect();
 	console.log('connect mongoDB success');
 	const db = client.db('key-value-list');
