@@ -92,7 +92,7 @@ export const updatePageArticles = async (
 		{ $set: { articles } as Pick<Page, 'articles'> }
 	);
 	if (!result.modifiedCount) {
-		throw 'target not exist';
+		throw 'target not exist or have been updated';
 	}
 };
 

@@ -12,7 +12,7 @@ declare global {
 export async function init(port?: number) {
 	client = new MongoClient(url(port));
 	await client.connect();
-	console.log('connect mongoDB success');
+	console.log('connect mongoDB success on:', port);
 	const db = client.db('key-value-list');
 	global.DBO = {
 		db: db,

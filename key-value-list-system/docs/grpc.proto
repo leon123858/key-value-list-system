@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package postList;
+
+service Setter {
+  rpc CreateHead (stream pageRequest) returns (stream pageReply) {}
+  rpc CreatePage (stream halfPageRequest) returns (stream pageReply) {}
+  rpc UpdatePage (stream pageRequest) returns (stream statusReply) {}
+  rpc MovePage (stream moveRequest) returns (stream statusReply) {}
+}
+
+message pageRequest {
+  string key = 1;
+  repeated string articles = 2;
+}
+
+message halfPageRequest {
+  repeated string articles = 1;
+}
+
+message pageReply {
+  string key = 1;
+  string error = 2;
+}
+
+message statusReply {
+  string status = 1;
+  string error = 2;
+}
+
+message moveRequest {
+  string key = 1;
+  string from = 2;
+  string to = 3;
+}

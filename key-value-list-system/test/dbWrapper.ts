@@ -110,6 +110,12 @@ describe('dbWrapper', function () {
 			const id = await createPage(['test']);
 			await updatePageArticles(id, ['test2', 'test3']);
 			expect((await getPage(id))?.articles).eqls(['test2', 'test3']);
+			try {
+				await updatePageArticles(id, ['test2', 'test3']);
+				throw 'Should be error above';
+			} catch (err) {
+				expect(err).eql('target not exist or have been updated');
+			}
 		});
 		it('Should update page error when target not exist', async () => {
 			try {
