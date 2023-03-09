@@ -14,7 +14,7 @@ import { ObjectId } from 'mongodb';
 const router = express.Router();
 
 router.get('/get/head', async (req, res) => {
-	if (!req.query?.key) {
+	if (!req.query?.key || req.query?.key == '') {
 		res.status(400).json({ error: 'bad request' });
 		return;
 	}
@@ -60,7 +60,11 @@ router.get('/get/page', async (req, res) => {
 router.post('/create/head', async (req, res) => {
 	const { listKey, articles }: { listKey: string; articles: string[] } =
 		req.body;
-	if (typeof listKey !== 'string' || !Array.isArray(articles)) {
+	if (
+		typeof listKey !== 'string' ||
+		listKey == '' ||
+		!Array.isArray(articles)
+	) {
 		res.status(400).json({ error: 'bad request' });
 		return;
 	}
@@ -95,6 +99,10 @@ router.put('/update/page', async (req, res) => {
 		res.status(400).json({ error: 'bad request' });
 		return;
 	}
+	if (!ObjectId.isValid(pageKey)) {
+		res.status(400).json({ error: 'wrong pageId format' });
+		return;
+	}
 	try {
 		await updatePageArticles(pageKey, articles);
 		res.status(200).json({ status: 'OK' });
@@ -117,13 +125,18 @@ router.put('/move/page', async (req, res) => {
 	if (
 		typeof sourceKey !== 'string' ||
 		typeof targetKey !== 'string' ||
-		typeof listKey !== 'string'
+		typeof listKey !== 'string' ||
+		listKey === ''
 	) {
 		res.status(400).json({ error: 'bad request' });
 		return;
 	}
+	if (!ObjectId.isValid(sourceKey) || !ObjectId.isValid(targetKey)) {
+		res.status(400).json({ error: 'wrong pageId format' });
+		return;
+	}
 	try {
-		await linkPage(sourceKey, targetKey, listKey);
+		await linkPage(targetKey, sourceKey, listKey);
 		res.status(200).json({ status: 'OK' });
 	} catch (err) {
 		console.error(err);
@@ -133,7 +146,7 @@ router.put('/move/page', async (req, res) => {
 
 router.delete('/delete/head', async (req, res) => {
 	const { listKey }: { listKey: string } = req.body;
-	if (typeof listKey !== 'string') {
+	if (typeof listKey !== 'string' || listKey == '') {
 		res.status(400).json({ error: 'bad request' });
 		return;
 	}

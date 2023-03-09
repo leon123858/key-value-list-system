@@ -98,8 +98,8 @@ export const updatePageArticles = async (
 
 /**
  * 連接兩段 link list, 若出現錯誤, 自動回朔
- * @param fromPage
- * @param toPage
+ * @param fromPage 要置於前面的頁
+ * @param toPage 要置於後面的頁
  * @param pageKey fromPage 所在列表的首位 key
  * @description 基於效能, 不處理環狀 link-list
  */
