@@ -6,7 +6,8 @@
 	"scripts": {
 		"build": "rimraf ./build && tsc && cp ./docs/openapi.yaml ./build/openapi.yaml && cp ./docs/grpc.proto ./build/grpc.proto",
 		"start": "yarn build && node ./build/index.js",
-		"test": "mocha -r ts-node/register test/*.ts test/utils/mongo.ts --exit"
+		"test": "mocha -r ts-node/register test/initDB.ts test/dbWrapper.ts test/utils/mongo.ts --exit",
+		"grpc": "mocha -r ts-node/register test/grpcClient.ts --exit"
 	},
 	"repository": {
 		"type": "git",
@@ -14,7 +15,8 @@
 	},
 	"keywords": [
 		"Node",
-		"RESTful"
+		"RESTful",
+		"grpc"
 	],
 	"author": "Leon Lin",
 	"license": "ISC",

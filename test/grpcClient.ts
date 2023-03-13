@@ -4,7 +4,7 @@ import grpc, { credentials } from '@grpc/grpc-js';
 /**
  * Should be use when server start ! (這是 grpc 的客戶端測試, 非單元測試)
  */
-xdescribe('grpc client', function () {
+describe('grpc client', function () {
 	let protoObj: grpc.GrpcObject;
 	let client: any;
 	before(async () => {
